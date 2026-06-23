@@ -36,3 +36,13 @@ output "cloudfront_domain_name" {
   description = "CloudFront distribution domain name"
   value       = module.cloudfront.cloudfront_domain_name
 }
+
+output "github_actions_role_arn" {
+  description = "The ARN of the GitHub Actions IAM role for OIDC access"
+  value       = module.github_oidc.github_actions_role_arn
+}
+
+output "s3_reports_role_arn" {
+  description = "The ARN of the EKS S3 patient reports IAM role"
+  value       = module.eks.s3_reports_role_arn
+}

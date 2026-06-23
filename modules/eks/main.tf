@@ -552,3 +552,64 @@ resource "aws_iam_role_policy_attachment" "bedrock" {
   role       = aws_iam_role.bedrock.name
 }
 
+# S3 Patient Reports Access IRSA Setup
+resource "aws_iam_role" "s3_reports" {
+  name = "elderpinq-${var.environment}-s3-reports-role"
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [{
+      Action = "sts:AssumeRoleWithWebIdentity"
+      Effect = "Allow"
+      Principal = {
+        Federated = aws_iam_openid_connect_provider.eks.arn
+      }
+      Condition = {
+        StringEquals = {
+          "${replace(aws_iam_openid_connect_provider.eks.url, "https://", "")}:sub" : [
+            "system:serviceaccount:healthcare:health-service",
+            "system:serviceaccount:healthcare:report-service"
+          ]
+        }
+      }
+    }]
+  })
+}
+
+resource "aws_iam_policy" "s3_reports" {
+  name        = "elderpinq-${var.environment}-s3-reports-policy"
+  description = "Permissions for EKS health and report services to access patient reports S3 bucket"
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = [
+          "s3:GetObject",
+          "s3:PutObject",
+          "s3:DeleteObject",
+          "s3:ListBucket"
+        ]
+        Resource = [
+          var.reports_bucket_arn,
+          "${var.reports_bucket_arn}/*"
+        ]
+      },
+      {
+        Effect = "Allow"
+        Action = [
+          "kms:Decrypt",
+          "kms:GenerateDataKey",
+          "kms:DescribeKey"
+        ]
+        Resource = var.reports_kms_key_arn
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "s3_reports" {
+  policy_arn = aws_iam_policy.s3_reports.arn
+  role       = aws_iam_role.s3_reports.name
+}
+
+

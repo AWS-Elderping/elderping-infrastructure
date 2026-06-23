@@ -26,3 +26,13 @@ variable "log_retention_days" {
   default     = 90
 }
 
+variable "reports_bucket_arn" {
+  type        = string
+  description = "The ARN of the reports S3 bucket"
+}
+
+variable "reports_kms_key_arn" {
+  type        = string
+  description = "The KMS key ARN for reports bucket"
+}
+

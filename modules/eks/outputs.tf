@@ -43,3 +43,8 @@ output "bedrock_role_arn" {
   value       = aws_iam_role.bedrock.arn
 }
 
+output "s3_reports_role_arn" {
+  description = "The ARN of the EKS S3 patient reports IAM role"
+  value       = aws_iam_role.s3_reports.arn
+}
+

@@ -1,6 +1,13 @@
 # Terraform Dev Environment Setup
 terraform {
   required_version = ">= 1.7.0"
+  backend "s3" {
+    bucket         = "elderpinq-462355914183-tfstate"
+    key            = "dev/terraform.tfstate"
+    region         = "us-east-1"
+    dynamodb_table = "elderpinq-tfstate-lock"
+    encrypt        = true
+  }
   required_providers {
     aws = {
       source  = "hashicorp/aws"
@@ -35,6 +42,12 @@ provider "aws" {
       Owner       = "platform-team"
     }
   }
+}
+
+# GitHub Actions OIDC Module
+module "github_oidc" {
+  source      = "../../modules/github-oidc"
+  environment = var.environment
 }
 
 # ACM Certificate with DNS validation
@@ -83,6 +96,8 @@ module "eks" {
   environment        = var.environment
   kubernetes_version = var.kubernetes_version
   log_retention_days = var.log_retention_days
+  reports_bucket_arn  = module.s3.bucket_arn
+  reports_kms_key_arn = module.s3.kms_key_arn
 }
 
 # 3. RDS Multi-AZ Databases

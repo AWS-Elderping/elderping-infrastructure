@@ -22,3 +22,8 @@ output "ui_bucket_regional_domain_name" {
   description = "The regional domain name of S3 UI bucket"
   value       = aws_s3_bucket.ui.bucket_regional_domain_name
 }
+
+output "kms_key_arn" {
+  description = "The ARN of the KMS key used for S3 encryption"
+  value       = aws_kms_key.s3_key.arn
+}
