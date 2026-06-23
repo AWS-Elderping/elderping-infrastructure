@@ -275,8 +275,8 @@ resource "aws_route53_record" "root" {
   type    = "A"
 
   alias {
-    name                   = module.cloudfront.cloudfront_domain_name
-    zone_id                = module.cloudfront.cloudfront_hosted_zone_id
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1172529933.us-east-1.elb.amazonaws.com"
+    zone_id                = "Z35SXDOTRQ7X7K"
     evaluate_target_health = false
   }
 }
@@ -287,8 +287,8 @@ resource "aws_route53_record" "www" {
   type    = "A"
 
   alias {
-    name                   = module.cloudfront.cloudfront_domain_name
-    zone_id                = module.cloudfront.cloudfront_hosted_zone_id
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1172529933.us-east-1.elb.amazonaws.com"
+    zone_id                = "Z35SXDOTRQ7X7K"
     evaluate_target_health = false
   }
 }
@@ -299,8 +299,8 @@ resource "aws_route53_record" "api" {
   type    = "A"
 
   alias {
-    name                   = module.alb.alb_dns_name
-    zone_id                = module.alb.alb_zone_id
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1172529933.us-east-1.elb.amazonaws.com"
+    zone_id                = "Z35SXDOTRQ7X7K"
     evaluate_target_health = true
   }
 }
