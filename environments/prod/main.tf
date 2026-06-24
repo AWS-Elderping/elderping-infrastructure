@@ -275,7 +275,7 @@ resource "aws_route53_record" "root" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1172529933.us-east-1.elb.amazonaws.com"
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
     zone_id                = "Z35SXDOTRQ7X7K"
     evaluate_target_health = false
   }
@@ -287,7 +287,7 @@ resource "aws_route53_record" "www" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1172529933.us-east-1.elb.amazonaws.com"
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
     zone_id                = "Z35SXDOTRQ7X7K"
     evaluate_target_health = false
   }
@@ -299,7 +299,19 @@ resource "aws_route53_record" "api" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1172529933.us-east-1.elb.amazonaws.com"
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
+    zone_id                = "Z35SXDOTRQ7X7K"
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_route53_record" "argocd" {
+  zone_id = module.route53.zone_id
+  name    = "argocd.${var.domain_name}"
+  type    = "A"
+
+  alias {
+    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
     zone_id                = "Z35SXDOTRQ7X7K"
     evaluate_target_health = true
   }

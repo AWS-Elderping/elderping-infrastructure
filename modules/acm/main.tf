@@ -4,7 +4,8 @@ resource "aws_acm_certificate" "cert" {
 
   subject_alternative_names = [
     "www.${var.domain_name}",
-    "api.${var.domain_name}"
+    "api.${var.domain_name}",
+    "argocd.${var.domain_name}"
   ]
 
   lifecycle {
