@@ -73,7 +73,6 @@ jobs:
         working-directory: ${{ env.WORKING_DIR }}
 
       - name: Terraform Plan
-        id: plan
         run: terraform plan -no-color -input=false 2>&1 | tee plan_output.txt
         working-directory: ${{ env.WORKING_DIR }}
 
@@ -134,6 +133,7 @@ jobs:
       - name: Infracost Key Not Configured
         if: env.INFRACOST_API_KEY == ''
         run: echo "INFRACOST_API_KEY not set — cost estimation skipped."
+
 
   # ── Stage 4: Apply ──────────────────────────────────────────────────────
   apply:
