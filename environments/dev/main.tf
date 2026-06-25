@@ -1,4 +1,4 @@
-# Terraform Dev Environment Setup
+# Terraform Dev Environment Setup — ElderPing Platform
 terraform {
   required_version = ">= 1.7.0"
   backend "s3" {
