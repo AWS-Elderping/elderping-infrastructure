@@ -1,27 +1,36 @@
 name: Terraform Apply
 
+# Manual trigger only — apply is never run automatically.
+# Use the Terraform CI pipeline (terraform-ci.yml) for scan, plan, and cost estimation.
 on:
-  push:
-    branches:
-      - main
-      - develop
-    paths:
-      - 'environments/**'
-      - 'modules/**'
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to apply (dev/prod)'
+        required: true
+        default: 'dev'
+        type: choice
+        options:
+          - dev
+          - prod
+      confirm:
+        description: 'Type CONFIRM to proceed with apply'
+        required: true
+        type: string
 
 jobs:
   apply:
     name: Terraform Apply
     runs-on: ubuntu-latest
+    if: github.event.inputs.confirm == 'CONFIRM'
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Configure AWS Credentials
+      - name: Configure AWS Credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
           aws-region: us-east-1
 
       - name: Setup Terraform
@@ -30,9 +39,9 @@ jobs:
           terraform_version: 1.7.0
 
       - name: Terraform Init
-        run: terraform init
-        working-directory: environments/dev
+        run: terraform init -input=false
+        working-directory: environments/${{ github.event.inputs.environment }}
 
       - name: Terraform Apply
-        run: terraform apply -auto-approve
-        working-directory: environments/dev
+        run: terraform apply -auto-approve -input=false
+        working-directory: environments/${{ github.event.inputs.environment }}
