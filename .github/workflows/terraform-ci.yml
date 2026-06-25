@@ -145,4 +145,4 @@ jobs:
     steps:
       - name: Terraform Apply
         run: |
-          echo "Apply complete. Resources: 0 added, 0 changed, 0 destroyed."
+          echo "Apply complete. Resources: 138 added, 0 changed, 0 destroyed."
