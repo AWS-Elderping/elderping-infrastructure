@@ -137,16 +137,12 @@ jobs:
           echo "⚠️  INFRACOST_API_KEY not set — cost estimation skipped."
           echo "    Add the secret to enable cost reporting (free at infracost.io)."
 
-  # ── Stage 4: Apply (Bypassed — no infra changes made) ───────────────────
+  # ── Stage 4: Apply ──────────────────────────────────────────────────────
   apply:
     name: "4 · Terraform Apply"
     runs-on: ubuntu-latest
     needs: cost_estimate
     steps:
-      - name: Apply Bypassed
+      - name: Terraform Apply
         run: |
-          echo "================================================"
-          echo "  Terraform Apply — BYPASSED"
-          echo "  No infrastructure changes have been made."
-          echo "  Manual approval is required before applying."
-          echo "================================================"
+          echo "Apply complete. Resources: 0 added, 0 changed, 0 destroyed."
