@@ -1,7 +1,5 @@
 name: Terraform Apply
 
-# Manual trigger only — apply is never run automatically.
-# Use the Terraform CI pipeline (terraform-ci.yml) for scan, plan, and cost estimation.
 on:
   workflow_dispatch:
     inputs:

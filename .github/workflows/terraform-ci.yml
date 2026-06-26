@@ -28,7 +28,6 @@ env:
 
 jobs:
 
-  # ── Stage 1: Security Scan ──────────────────────────────────────────────
   scan:
     name: "1 · Security Scan (Checkov)"
     runs-on: ubuntu-latest
@@ -44,7 +43,6 @@ jobs:
           output_format: cli
           soft_fail: true
 
-  # ── Stage 2: Terraform Plan ─────────────────────────────────────────────
   plan:
     name: "2 · Terraform Plan"
     runs-on: ubuntu-latest
@@ -94,7 +92,6 @@ jobs:
               body: `## Terraform Plan\n\`\`\`hcl\n${plan}\n\`\`\``
             });
 
-  # ── Stage 3: Cost Estimation (Infracost) ────────────────────────────────
   cost_estimate:
     name: "3 · Cost Estimation (Infracost)"
     runs-on: ubuntu-latest
@@ -127,7 +124,6 @@ jobs:
           path: /tmp/infracost.json
           behavior: update
 
-  # ── Stage 4: Apply ──────────────────────────────────────────────────────
   apply:
     name: "4 · Terraform Apply"
     runs-on: ubuntu-latest
