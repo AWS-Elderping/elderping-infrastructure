@@ -283,6 +283,25 @@ module "argocd_bootstrap" {
   environment      = var.environment
 }
 
+# The shared ALB is created by the in-cluster AWS Load Balancer Controller
+# (via ArgoCD-managed Ingress resources), not by Terraform, so it's looked
+# up dynamically by the stable ingress-group tag rather than a hardcoded
+# hostname - the previous hardcoded value went stale every time the ALB was
+# recreated (e.g. on a fresh cluster) and silently broke DNS.
+# NOTE: this data source requires the ALB to already exist, i.e. ArgoCD must
+# have synced at least one Ingress in the "elderpinq-ingress-group" before
+# this can be applied - it cannot be created in the same apply as a brand
+# new cluster/ArgoCD bootstrap.
+data "aws_lbs" "ingress" {
+  tags = {
+    "ingress.k8s.aws/stack" = "elderpinq-ingress-group"
+  }
+}
+
+data "aws_lb" "ingress" {
+  arn = tolist(data.aws_lbs.ingress.arns)[0]
+}
+
 # Route 53 Records for DNS routing integrations
 resource "aws_route53_record" "root" {
   zone_id = module.route53.zone_id
@@ -290,8 +309,8 @@ resource "aws_route53_record" "root" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
-    zone_id                = "Z35SXDOTRQ7X7K"
+    name                   = data.aws_lb.ingress.dns_name
+    zone_id                = data.aws_lb.ingress.zone_id
     evaluate_target_health = false
   }
 }
@@ -302,8 +321,8 @@ resource "aws_route53_record" "www" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
-    zone_id                = "Z35SXDOTRQ7X7K"
+    name                   = data.aws_lb.ingress.dns_name
+    zone_id                = data.aws_lb.ingress.zone_id
     evaluate_target_health = false
   }
 }
@@ -314,8 +333,8 @@ resource "aws_route53_record" "api" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
-    zone_id                = "Z35SXDOTRQ7X7K"
+    name                   = data.aws_lb.ingress.dns_name
+    zone_id                = data.aws_lb.ingress.zone_id
     evaluate_target_health = true
   }
 }
@@ -326,8 +345,8 @@ resource "aws_route53_record" "argocd" {
   type    = "A"
 
   alias {
-    name                   = "k8s-elderpinqingressg-dbee728d9e-1971631374.us-east-1.elb.amazonaws.com"
-    zone_id                = "Z35SXDOTRQ7X7K"
+    name                   = data.aws_lb.ingress.dns_name
+    zone_id                = data.aws_lb.ingress.zone_id
     evaluate_target_health = true
   }
 }

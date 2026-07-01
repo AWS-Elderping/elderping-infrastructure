@@ -133,6 +133,34 @@ resource "aws_iam_role_policy_attachment" "registry_policy" {
   role       = aws_iam_role.nodes.name
 }
 
+# Custom launch template purely to raise the IMDS hop limit to 2. The EKS
+# default (implicit) launch template pins it to 1, which blocks pods (an
+# extra network hop via the CNI bridge) from reaching instance metadata -
+# needed by controllers like aws-load-balancer-controller to auto-detect
+# the VPC ID without hardcoding it.
+resource "aws_launch_template" "nodes" {
+  name_prefix   = "elderpinq-${var.environment}-ng-"
+  instance_type = "t3.medium"
+
+  metadata_options {
+    http_endpoint               = "enabled"
+    http_tokens                 = "required"
+    http_put_response_hop_limit = 2
+  }
+
+  tag_specifications {
+    resource_type = "instance"
+    tags = {
+      Name        = "elderpinq-${var.environment}-node"
+      Environment = var.environment
+    }
+  }
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
 resource "aws_eks_node_group" "main" {
   cluster_name    = aws_eks_cluster.main.name
   node_group_name = "elderpinq-${var.environment}-ng"
@@ -145,7 +173,10 @@ resource "aws_eks_node_group" "main" {
     min_size     = 1
   }
 
-  instance_types = ["t3.medium"]
+  launch_template {
+    id      = aws_launch_template.nodes.id
+    version = aws_launch_template.nodes.latest_version
+  }
 
   labels = {
     role        = "worker"
