@@ -143,14 +143,6 @@ module "route53" {
   environment = var.environment
 }
 
-# 9. CloudFront CDN
-module "cloudfront" {
-  source                = "../../modules/cloudfront"
-  s3_bucket_domain_name = module.s3.ui_bucket_regional_domain_name
-  s3_bucket_id          = module.s3.ui_bucket_id
-  environment           = var.environment
-}
-
 # 10. WAF Web ACL
 module "waf" {
   source      = "../../modules/waf"
@@ -321,30 +313,5 @@ resource "aws_route53_record" "argocd" {
 resource "aws_wafv2_web_acl_association" "alb" {
   resource_arn = module.alb.alb_arn
   web_acl_arn  = module.waf.web_acl_arn
-}
-
-# UI S3 Bucket Policy for CloudFront OAC Access
-resource "aws_s3_bucket_policy" "ui_bucket_policy" {
-  bucket = module.s3.ui_bucket_id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
-        Effect = "Allow"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-        Action   = "s3:GetObject"
-        Resource = "${module.s3.ui_bucket_arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = module.cloudfront.cloudfront_arn
-          }
-        }
-      }
-    ]
-  })
 }
 

@@ -32,11 +32,6 @@ output "route53_nameservers" {
   value       = module.route53.name_servers
 }
 
-output "cloudfront_domain_name" {
-  description = "CloudFront distribution domain name"
-  value       = module.cloudfront.cloudfront_domain_name
-}
-
 output "github_actions_role_arn" {
   description = "The ARN of the GitHub Actions IAM role for OIDC access"
   value       = module.github_oidc.github_actions_role_arn

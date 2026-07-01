@@ -40,23 +40,3 @@ resource "aws_s3_bucket_public_access_block" "reports" {
   ignore_public_acls      = true
   restrict_public_buckets = true
 }
-
-# S3 Bucket for UI Static Hosting
-resource "aws_s3_bucket" "ui" {
-  bucket        = "elderpinq-${var.environment}-ui"
-  force_destroy = var.environment == "prod" ? false : true
-
-  tags = {
-    Name        = "elderpinq-${var.environment}-ui"
-    Environment = var.environment
-  }
-}
-
-resource "aws_s3_bucket_public_access_block" "ui" {
-  bucket = aws_s3_bucket.ui.id
-
-  block_public_acls       = true
-  block_public_policy     = true
-  ignore_public_acls      = true
-  restrict_public_buckets = true
-}

@@ -143,12 +143,27 @@ module "route53" {
   environment = var.environment
 }
 
-# 9. CloudFront CDN
-module "cloudfront" {
-  source                = "../../modules/cloudfront"
-  s3_bucket_domain_name = module.s3.ui_bucket_regional_domain_name
-  s3_bucket_id          = module.s3.ui_bucket_id
-  environment           = var.environment
+# 9b. Doc Embedder Lambda (RAG ingestion pipeline)
+module "doc_embedder_lambda" {
+  source              = "../../modules/doc-embedder-lambda"
+  vpc_id               = module.vpc.vpc_id
+  private_subnets      = module.vpc.private_subnets
+  reports_bucket_arn   = module.s3.bucket_arn
+  rds_host             = module.rds.db_host
+  environment          = var.environment
+  lambda_package_path  = "${path.module}/../../../elderping-doc-embedder-lambda/dist.zip"
+}
+
+resource "aws_s3_bucket_notification" "documents_trigger" {
+  bucket = module.s3.bucket_name
+
+  lambda_function {
+    lambda_function_arn = module.doc_embedder_lambda.lambda_arn
+    events               = ["s3:ObjectCreated:*"]
+    filter_prefix        = "documents/"
+  }
+
+  depends_on = [module.doc_embedder_lambda]
 }
 
 # 10. WAF Web ACL
@@ -321,30 +336,5 @@ resource "aws_route53_record" "argocd" {
 resource "aws_wafv2_web_acl_association" "alb" {
   resource_arn = module.alb.alb_arn
   web_acl_arn  = module.waf.web_acl_arn
-}
-
-# UI S3 Bucket Policy for CloudFront OAC Access
-resource "aws_s3_bucket_policy" "ui_bucket_policy" {
-  bucket = module.s3.ui_bucket_id
-
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid    = "AllowCloudFrontServicePrincipalReadOnly"
-        Effect = "Allow"
-        Principal = {
-          Service = "cloudfront.amazonaws.com"
-        }
-        Action   = "s3:GetObject"
-        Resource = "${module.s3.ui_bucket_arn}/*"
-        Condition = {
-          StringEquals = {
-            "AWS:SourceArn" = module.cloudfront.cloudfront_arn
-          }
-        }
-      }
-    ]
-  })
 }
 
